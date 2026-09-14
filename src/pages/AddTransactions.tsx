@@ -75,7 +75,7 @@ function AddTransactions() {
         category: "Other",
         amount: Number(amount),
         type,
-        date: new Date().toLocaleDateString(),
+        date: new Date().toISOString(),
       })
     }
 
@@ -304,3 +304,4 @@ function AddTransactions() {
 }
 
 export default AddTransactions
+

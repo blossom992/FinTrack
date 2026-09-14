@@ -16,6 +16,22 @@ type TransactionItemProps = {
   transaction: Transaction
 }
 
+function formatTransactionDate(date: string) {
+  const parsedDate = new Date(date)
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return date
+  }
+
+  return parsedDate
+    .toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+    .replace(/(\d+) (\w+) (\d+)/, "$1, $2, $3")
+}
+
 function TransactionItem({
   transaction,
 }: TransactionItemProps) {
@@ -69,7 +85,7 @@ function TransactionItem({
                 <span className="shrink-0">•</span>
 
                 <span className="shrink-0">
-                  {transaction.date}
+                  {formatTransactionDate(transaction.date)}
                 </span>
               </div>
             </div>

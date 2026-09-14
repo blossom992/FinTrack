@@ -6,6 +6,7 @@ import Sidebar from "./components/SideBar"
 import Dashboard from "./pages/Dashboard"
 import Transactions from "./pages/Transaction"
 import AddTransactions from "./pages/AddTransactions"
+import Insights from "./pages/Insights"
 
 const SidebarComponent = Sidebar as unknown as ({
   isOpen,
@@ -62,8 +63,13 @@ function App() {
               path="/transactions"
               element={<Transactions />}
             />
-
+            {/* Insights */}
+            <Route
+              path="/insights"
+              element={<Insights />}
+            />
             {/* Add Transaction */}
+                        
             <Route
               path="/add-transaction"
               element={<AddTransactions />}
