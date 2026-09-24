@@ -7,6 +7,7 @@ import {
 import { useMemo, useState } from "react"
 
 import { useTransactions } from "../context/UseTransactions"
+import { useTheme } from "../context/UseTheme"
 import { formatCurrency } from "../utils/formatCurrency"
 
 const months = [
@@ -25,11 +26,11 @@ const months = [
 ]
 
 const categoryColors = [
-  "#6366F1",
-  "#EF4444",
-  "#F97316",
-  "#A855F7",
-  "#14B8A6",
+  "#4F8F62",
+  "#D86B61",
+  "#D89A52",
+  "#8D73B8",
+  "#4FA5A0",
 ]
 
 function getMonthIndex(date: string) {
@@ -44,13 +45,17 @@ function getMonthIndex(date: string) {
 
 function Insights() {
   const { transactions } = useTransactions()
+  const { theme } = useTheme()
+
+  const isDark = theme === "dark"
 
   const currentMonth = months[new Date().getMonth()]
 
   const [selectedMonth, setSelectedMonth] =
     useState(currentMonth)
 
-  const selectedMonthIndex = months.indexOf(selectedMonth)
+  const selectedMonthIndex =
+    months.indexOf(selectedMonth)
 
   /*
    * Transactions for the selected month
@@ -68,18 +73,24 @@ function Insights() {
    */
   const income = useMemo(() => {
     return monthTransactions
-      .filter((transaction) => transaction.type === "income")
+      .filter(
+        (transaction) => transaction.type === "income"
+      )
       .reduce(
-        (total, transaction) => total + transaction.amount,
+        (total, transaction) =>
+          total + transaction.amount,
         0
       )
   }, [monthTransactions])
 
   const expenses = useMemo(() => {
     return monthTransactions
-      .filter((transaction) => transaction.type === "expense")
+      .filter(
+        (transaction) => transaction.type === "expense"
+      )
       .reduce(
-        (total, transaction) => total + transaction.amount,
+        (total, transaction) =>
+          total + transaction.amount,
         0
       )
   }, [monthTransactions])
@@ -93,9 +104,12 @@ function Insights() {
     const categoryTotals: Record<string, number> = {}
 
     monthTransactions
-      .filter((transaction) => transaction.type === "expense")
+      .filter(
+        (transaction) => transaction.type === "expense"
+      )
       .forEach((transaction) => {
-        const category = transaction.category || "Others"
+        const category =
+          transaction.category || "Others"
 
         categoryTotals[category] =
           (categoryTotals[category] || 0) +
@@ -111,7 +125,8 @@ function Insights() {
   }, [monthTransactions])
 
   const categoryTotal = spendingCategories.reduce(
-    (total, category) => total + category.amount,
+    (total, category) =>
+      total + category.amount,
     0
   )
 
@@ -123,12 +138,14 @@ function Insights() {
       return spendingCategories
     }
 
-    const topCategories = spendingCategories.slice(0, 4)
+    const topCategories =
+      spendingCategories.slice(0, 4)
 
     const others = spendingCategories
       .slice(4)
       .reduce(
-        (total, category) => total + category.amount,
+        (total, category) =>
+          total + category.amount,
         0
       )
 
@@ -146,7 +163,9 @@ function Insights() {
    */
   const donutGradient = useMemo(() => {
     if (categoryTotal === 0) {
-      return "#E5E7EB 0deg 360deg"
+      return isDark
+        ? "#2B382F 0deg 360deg"
+        : "#E5EAE6 0deg 360deg"
     }
 
     let currentDegree = 0
@@ -168,7 +187,11 @@ function Insights() {
         } ${start}deg ${end}deg`
       })
       .join(", ")
-  }, [visibleCategories, categoryTotal])
+  }, [
+    visibleCategories,
+    categoryTotal,
+    isDark,
+  ])
 
   /*
    * Monthly trend data
@@ -184,10 +207,12 @@ function Insights() {
         .filter(
           (transaction) =>
             transaction.type === "expense" &&
-            getMonthIndex(transaction.date) === monthIndex
+            getMonthIndex(transaction.date) ===
+              monthIndex
         )
         .reduce(
-          (total, transaction) => total + transaction.amount,
+          (total, transaction) =>
+            total + transaction.amount,
           0
         )
 
@@ -231,12 +256,16 @@ function Insights() {
   const incomePercentage =
     totalActivity === 0
       ? 0
-      : Math.round((income / totalActivity) * 100)
+      : Math.round(
+          (income / totalActivity) * 100
+        )
 
   const expensePercentage =
     totalActivity === 0
       ? 0
-      : Math.round((expenses / totalActivity) * 100)
+      : Math.round(
+          (expenses / totalActivity) * 100
+        )
 
   const balancePercentage =
     totalActivity === 0
@@ -246,15 +275,44 @@ function Insights() {
         )
 
   return (
-    <section className="min-w-0 bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <section
+      className={`
+        min-h-screen min-w-0 p-4
+        transition-colors duration-200
+        sm:p-6 lg:p-8
+        ${
+          isDark
+            ? "bg-[#111713] text-[#F1F5F2]"
+            : "bg-[#F7F9F6] text-[#1F2933]"
+        }
+      `}
+    >
       {/* Header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <h1
+            className={`
+              text-2xl font-semibold tracking-tight
+              ${
+                isDark
+                  ? "text-[#F1F5F2]"
+                  : "text-[#1F2933]"
+              }
+            `}
+          >
             Insights
           </h1>
 
-          <p className="mt-1 text-sm text-gray-500 sm:text-base">
+          <p
+            className={`
+              mt-1 text-sm sm:text-base
+              ${
+                isDark
+                  ? "text-[#A7B3AA]"
+                  : "text-[#718096]"
+              }
+            `}
+          >
             Analyze your financial activity
           </p>
         </div>
@@ -266,10 +324,23 @@ function Insights() {
             onChange={(event) =>
               setSelectedMonth(event.target.value)
             }
-            className="h-10 w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 pr-10 text-sm font-medium text-gray-700 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
+            className={`
+              h-10 w-full appearance-none
+              rounded-xl border px-4 pr-10
+              text-sm font-medium outline-none
+              transition
+              ${
+                isDark
+                  ? "border-[#2B382F] bg-[#18201B] text-[#F1F5F2] focus:border-[#69B77D] focus:ring-2 focus:ring-[#23452C]"
+                  : "border-[#E5EAE6] bg-white text-[#526057] focus:border-[#3F8F5B] focus:ring-2 focus:ring-[#EAF5ED]"
+              }
+            `}
           >
             {months.map((month) => (
-              <option key={month} value={month}>
+              <option
+                key={month}
+                value={month}
+              >
                 {month}
               </option>
             ))}
@@ -277,7 +348,16 @@ function Insights() {
 
           <ChevronDown
             size={17}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className={`
+              pointer-events-none absolute
+              right-3 top-1/2
+              -translate-y-1/2
+              ${
+                isDark
+                  ? "text-[#7F8C83]"
+                  : "text-[#718096]"
+              }
+            `}
           />
         </div>
       </header>
@@ -285,39 +365,115 @@ function Insights() {
       {/* Insights grid */}
       <div className="mt-7 grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Income vs Expenses */}
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+        <section
+          className={`
+            rounded-2xl border p-5 shadow-sm
+            transition-colors duration-200
+            sm:p-6
+            ${
+              isDark
+                ? "border-[#2B382F] bg-[#18201B]"
+                : "border-[#E5EAE6] bg-white"
+            }
+          `}
+        >
+          <h2
+            className={`
+              text-lg font-semibold sm:text-xl
+              ${
+                isDark
+                  ? "text-[#F1F5F2]"
+                  : "text-[#1F2933]"
+              }
+            `}
+          >
             Income vs Expenses
           </h2>
 
           <div className="mt-6">
             {income === 0 && expenses === 0 ? (
-              <div className="flex h-64 items-center justify-center rounded-xl bg-gray-50">
+              <div
+                className={`
+                  flex h-64 items-center
+                  justify-center rounded-xl
+                  ${
+                    isDark
+                      ? "bg-[#111713]"
+                      : "bg-[#F7F9F6]"
+                  }
+                `}
+              >
                 <div className="text-center">
                   <Wallet
                     size={24}
-                    className="mx-auto text-gray-300"
+                    className={`
+                      mx-auto
+                      ${
+                        isDark
+                          ? "text-[#3D4941]"
+                          : "text-[#C6CEC8]"
+                      }
+                    `}
                   />
 
-                  <p className="mt-3 text-sm font-medium text-gray-500">
+                  <p
+                    className={`
+                      mt-3 text-sm font-medium
+                      ${
+                        isDark
+                          ? "text-[#A7B3AA]"
+                          : "text-[#718096]"
+                      }
+                    `}
+                  >
                     No activity for {selectedMonth}
                   </p>
 
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p
+                    className={`
+                      mt-1 text-xs
+                      ${
+                        isDark
+                          ? "text-[#66736B]"
+                          : "text-[#8A9490]"
+                      }
+                    `}
+                  >
                     Add transactions to see your comparison.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex h-64 flex-1 items-end justify-center gap-8 border-b border-gray-100 pb-0 sm:gap-12">
+                <div
+                  className={`
+                    flex h-64 flex-1
+                    items-end justify-center
+                    gap-8 border-b pb-0
+                    sm:gap-12
+                    ${
+                      isDark
+                        ? "border-[#2B382F]"
+                        : "border-[#E5EAE6]"
+                    }
+                  `}
+                >
                   <div className="flex h-full flex-col items-center justify-end">
-                    <span className="mb-2 text-xs font-medium text-gray-600">
+                    <span
+                      className={`
+                        mb-2 text-xs font-medium
+                        ${
+                          isDark
+                            ? "text-[#A7B3AA]"
+                            : "text-[#526057]"
+                        }
+                      `}
+                    >
                       {formatCurrency(income)}
                     </span>
 
                     <div
-                      className="w-10 rounded-t-md bg-green-500 transition-all"
+                      className="w-10 rounded-t-md bg-[#4F8F62] transition-all"
                       style={{
                         height: `${
                           Math.max(
@@ -334,18 +490,36 @@ function Insights() {
                       }}
                     />
 
-                    <span className="mt-3 text-xs text-gray-500">
+                    <span
+                      className={`
+                        mt-3 text-xs
+                        ${
+                          isDark
+                            ? "text-[#7F8C83]"
+                            : "text-[#718096]"
+                        }
+                      `}
+                    >
                       Income
                     </span>
                   </div>
 
                   <div className="flex h-full flex-col items-center justify-end">
-                    <span className="mb-2 text-xs font-medium text-gray-600">
+                    <span
+                      className={`
+                        mb-2 text-xs font-medium
+                        ${
+                          isDark
+                            ? "text-[#A7B3AA]"
+                            : "text-[#526057]"
+                        }
+                      `}
+                    >
                       {formatCurrency(expenses)}
                     </span>
 
                     <div
-                      className="w-10 rounded-t-md bg-red-500 transition-all"
+                      className="w-10 rounded-t-md bg-[#D86B61] transition-all"
                       style={{
                         height: `${
                           Math.max(
@@ -362,7 +536,16 @@ function Insights() {
                       }}
                     />
 
-                    <span className="mt-3 text-xs text-gray-500">
+                    <span
+                      className={`
+                        mt-3 text-xs
+                        ${
+                          isDark
+                            ? "text-[#7F8C83]"
+                            : "text-[#718096]"
+                        }
+                      `}
+                    >
                       Expenses
                     </span>
                   </div>
@@ -370,15 +553,35 @@ function Insights() {
 
                 <div className="space-y-4 sm:w-28">
                   <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-green-500" />
-                    <span className="text-sm text-gray-600">
+                    <span className="h-3 w-3 rounded-full bg-[#4F8F62]" />
+
+                    <span
+                      className={`
+                        text-sm
+                        ${
+                          isDark
+                            ? "text-[#A7B3AA]"
+                            : "text-[#718096]"
+                        }
+                      `}
+                    >
                       Income
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-red-500" />
-                    <span className="text-sm text-gray-600">
+                    <span className="h-3 w-3 rounded-full bg-[#D86B61]" />
+
+                    <span
+                      className={`
+                        text-sm
+                        ${
+                          isDark
+                            ? "text-[#A7B3AA]"
+                            : "text-[#718096]"
+                        }
+                      `}
+                    >
                       Expenses
                     </span>
                   </div>
@@ -389,8 +592,28 @@ function Insights() {
         </section>
 
         {/* Spending Category */}
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+        <section
+          className={`
+            rounded-2xl border p-5 shadow-sm
+            transition-colors duration-200
+            sm:p-6
+            ${
+              isDark
+                ? "border-[#2B382F] bg-[#18201B]"
+                : "border-[#E5EAE6] bg-white"
+            }
+          `}
+        >
+          <h2
+            className={`
+              text-lg font-semibold sm:text-xl
+              ${
+                isDark
+                  ? "text-[#F1F5F2]"
+                  : "text-[#1F2933]"
+              }
+            `}
+          >
             Spending Category
           </h2>
 
@@ -403,12 +626,43 @@ function Insights() {
                 }}
               />
 
-              <div className="absolute flex h-28 w-28 flex-col items-center justify-center rounded-full bg-white sm:h-32 sm:w-32">
-                <span className="text-base font-bold tracking-tight text-gray-900 sm:text-lg">
+              <div
+                className={`
+                  absolute flex h-28 w-28
+                  flex-col items-center justify-center
+                  rounded-full
+                  sm:h-32 sm:w-32
+                  ${
+                    isDark
+                      ? "bg-[#18201B]"
+                      : "bg-white"
+                  }
+                `}
+              >
+                <span
+                  className={`
+                    text-base font-bold tracking-tight
+                    sm:text-lg
+                    ${
+                      isDark
+                        ? "text-[#F1F5F2]"
+                        : "text-[#1F2933]"
+                    }
+                  `}
+                >
                   {formatCurrency(categoryTotal)}
                 </span>
 
-                <span className="mt-1 text-[9px] text-gray-500 sm:text-[10px]">
+                <span
+                  className={`
+                    mt-1 text-[9px] sm:text-[10px]
+                    ${
+                      isDark
+                        ? "text-[#7F8C83]"
+                        : "text-[#718096]"
+                    }
+                  `}
+                >
                   Total Expenses
                 </span>
               </div>
@@ -416,8 +670,26 @@ function Insights() {
 
             <div className="w-full max-w-xs space-y-3">
               {visibleCategories.length === 0 ? (
-                <div className="rounded-xl bg-gray-50 px-4 py-6 text-center">
-                  <p className="text-sm text-gray-500">
+                <div
+                  className={`
+                    rounded-xl px-4 py-6 text-center
+                    ${
+                      isDark
+                        ? "bg-[#111713]"
+                        : "bg-[#F7F9F6]"
+                    }
+                  `}
+                >
+                  <p
+                    className={`
+                      text-sm
+                      ${
+                        isDark
+                          ? "text-[#A7B3AA]"
+                          : "text-[#718096]"
+                      }
+                    `}
+                  >
                     No spending data
                   </p>
                 </div>
@@ -449,11 +721,30 @@ function Insights() {
                           }}
                         />
 
-                        <span className="min-w-0 flex-1 truncate text-sm text-gray-600">
+                        <span
+                          className={`
+                            min-w-0 flex-1
+                            truncate text-sm
+                            ${
+                              isDark
+                                ? "text-[#A7B3AA]"
+                                : "text-[#718096]"
+                            }
+                          `}
+                        >
                           {category.name}
                         </span>
 
-                        <span className="text-xs font-medium text-gray-700">
+                        <span
+                          className={`
+                            text-xs font-medium
+                            ${
+                              isDark
+                                ? "text-[#D6DED8]"
+                                : "text-[#526057]"
+                            }
+                          `}
+                        >
                           {percentage}%
                         </span>
                       </div>
@@ -466,73 +757,235 @@ function Insights() {
         </section>
 
         {/* Monthly Spending */}
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+        <section
+          className={`
+            rounded-2xl border p-5 shadow-sm
+            transition-colors duration-200
+            sm:p-6
+            ${
+              isDark
+                ? "border-[#2B382F] bg-[#18201B]"
+                : "border-[#E5EAE6] bg-white"
+            }
+          `}
+        >
+          <h2
+            className={`
+              text-lg font-semibold sm:text-xl
+              ${
+                isDark
+                  ? "text-[#F1F5F2]"
+                  : "text-[#1F2933]"
+              }
+            `}
+          >
             Monthly Spending
           </h2>
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-xl bg-gray-50 p-4">
+            {/* Income */}
+            <div
+              className={`
+                rounded-xl p-4
+                ${
+                  isDark
+                    ? "bg-[#111713]"
+                    : "bg-[#F7F9F6]"
+                }
+              `}
+            >
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-500">
+                <p
+                  className={`
+                    text-xs
+                    ${
+                      isDark
+                        ? "text-[#7F8C83]"
+                        : "text-[#718096]"
+                    }
+                  `}
+                >
                   Income
                 </p>
 
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                <div
+                  className={`
+                    flex h-7 w-7
+                    items-center justify-center
+                    rounded-lg
+                    ${
+                      isDark
+                        ? "bg-[#1E3325] text-[#69B77D]"
+                        : "bg-[#EAF5ED] text-[#3F8F5B]"
+                    }
+                  `}
+                >
                   <TrendingUp size={14} />
                 </div>
               </div>
 
-              <p className="mt-5 text-base font-bold text-gray-900">
+              <p
+                className={`
+                  mt-5 text-base font-bold
+                  ${
+                    isDark
+                      ? "text-[#F1F5F2]"
+                      : "text-[#1F2933]"
+                  }
+                `}
+              >
                 {formatCurrency(income)}
               </p>
 
-              <p className="mt-1 text-xs text-green-600">
+              <p
+                className={`
+                  mt-1 text-xs
+                  ${
+                    isDark
+                      ? "text-[#69B77D]"
+                      : "text-[#3F8F5B]"
+                  }
+                `}
+              >
                 {incomePercentage}% of activity
               </p>
             </div>
 
-            <div className="rounded-xl bg-gray-50 p-4">
+            {/* Expenses */}
+            <div
+              className={`
+                rounded-xl p-4
+                ${
+                  isDark
+                    ? "bg-[#111713]"
+                    : "bg-[#F7F9F6]"
+                }
+              `}
+            >
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-500">
+                <p
+                  className={`
+                    text-xs
+                    ${
+                      isDark
+                        ? "text-[#7F8C83]"
+                        : "text-[#718096]"
+                    }
+                  `}
+                >
                   Expenses
                 </p>
 
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-500">
+                <div
+                  className={`
+                    flex h-7 w-7
+                    items-center justify-center
+                    rounded-lg
+                    ${
+                      isDark
+                        ? "bg-[#3A2524] text-[#E47A72]"
+                        : "bg-[#FDEDEC] text-[#D86B61]"
+                    }
+                  `}
+                >
                   <TrendingDown size={14} />
                 </div>
               </div>
 
-              <p className="mt-5 text-base font-bold text-gray-900">
+              <p
+                className={`
+                  mt-5 text-base font-bold
+                  ${
+                    isDark
+                      ? "text-[#F1F5F2]"
+                      : "text-[#1F2933]"
+                  }
+                `}
+              >
                 {formatCurrency(expenses)}
               </p>
 
-              <p className="mt-1 text-xs text-red-500">
+              <p
+                className={`
+                  mt-1 text-xs
+                  ${
+                    isDark
+                      ? "text-[#E47A72]"
+                      : "text-[#D86B61]"
+                  }
+                `}
+              >
                 {expensePercentage}% of activity
               </p>
             </div>
 
-            <div className="rounded-xl bg-gray-50 p-4">
+            {/* Balance */}
+            <div
+              className={`
+                rounded-xl p-4
+                ${
+                  isDark
+                    ? "bg-[#111713]"
+                    : "bg-[#F7F9F6]"
+                }
+              `}
+            >
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-500">
+                <p
+                  className={`
+                    text-xs
+                    ${
+                      isDark
+                        ? "text-[#7F8C83]"
+                        : "text-[#718096]"
+                    }
+                  `}
+                >
                   Balance
                 </p>
 
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                <div
+                  className={`
+                    flex h-7 w-7
+                    items-center justify-center
+                    rounded-lg
+                    ${
+                      isDark
+                        ? "bg-[#202B23] text-[#A7B3AA]"
+                        : "bg-[#E8ECE9] text-[#526057]"
+                    }
+                  `}
+                >
                   <Wallet size={14} />
                 </div>
               </div>
 
-              <p className="mt-5 text-base font-bold text-gray-900">
+              <p
+                className={`
+                  mt-5 text-base font-bold
+                  ${
+                    isDark
+                      ? "text-[#F1F5F2]"
+                      : "text-[#1F2933]"
+                  }
+                `}
+              >
                 {formatCurrency(balance)}
               </p>
 
               <p
-                className={`mt-1 text-xs ${
-                  balance >= 0
-                    ? "text-green-600"
-                    : "text-red-500"
-                }`}
+                className={`
+                  mt-1 text-xs
+                  ${
+                    balance >= 0
+                      ? isDark
+                        ? "text-[#69B77D]"
+                        : "text-[#3F8F5B]"
+                      : isDark
+                        ? "text-[#E47A72]"
+                        : "text-[#D86B61]"
+                  }
+                `}
               >
                 {balancePercentage}% of activity
               </p>
@@ -541,8 +994,28 @@ function Insights() {
         </section>
 
         {/* Expenses Trend */}
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+        <section
+          className={`
+            rounded-2xl border p-5 shadow-sm
+            transition-colors duration-200
+            sm:p-6
+            ${
+              isDark
+                ? "border-[#2B382F] bg-[#18201B]"
+                : "border-[#E5EAE6] bg-white"
+            }
+          `}
+        >
+          <h2
+            className={`
+              text-lg font-semibold sm:text-xl
+              ${
+                isDark
+                  ? "text-[#F1F5F2]"
+                  : "text-[#1F2933]"
+              }
+            `}
+          >
             Expenses Trend
           </h2>
 
@@ -550,13 +1023,41 @@ function Insights() {
             {trendData.every(
               (item) => item.amount === 0
             ) ? (
-              <div className="flex h-52 items-center justify-center rounded-xl bg-gray-50">
+              <div
+                className={`
+                  flex h-52 items-center
+                  justify-center rounded-xl
+                  ${
+                    isDark
+                      ? "bg-[#111713]"
+                      : "bg-[#F7F9F6]"
+                  }
+                `}
+              >
                 <div className="text-center">
-                  <p className="text-sm font-medium text-gray-500">
+                  <p
+                    className={`
+                      text-sm font-medium
+                      ${
+                        isDark
+                          ? "text-[#A7B3AA]"
+                          : "text-[#718096]"
+                      }
+                    `}
+                  >
                     No expense trend yet
                   </p>
 
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p
+                    className={`
+                      mt-1 text-xs
+                      ${
+                        isDark
+                          ? "text-[#66736B]"
+                          : "text-[#8A9490]"
+                      }
+                    `}
+                  >
                     Add expenses to see your monthly trend.
                   </p>
                 </div>
@@ -573,7 +1074,11 @@ function Insights() {
                     y1="88"
                     x2="100"
                     y2="88"
-                    stroke="#E5E7EB"
+                    stroke={
+                      isDark
+                        ? "#2B382F"
+                        : "#E5EAE6"
+                    }
                     strokeWidth="0.5"
                   />
 
@@ -582,7 +1087,11 @@ function Insights() {
                     y1="53"
                     x2="100"
                     y2="53"
-                    stroke="#F3F4F6"
+                    stroke={
+                      isDark
+                        ? "#202B23"
+                        : "#F1F4F2"
+                    }
                     strokeWidth="0.5"
                   />
 
@@ -591,14 +1100,22 @@ function Insights() {
                     y1="18"
                     x2="100"
                     y2="18"
-                    stroke="#F3F4F6"
+                    stroke={
+                      isDark
+                        ? "#202B23"
+                        : "#F1F4F2"
+                    }
                     strokeWidth="0.5"
                   />
 
                   <polyline
                     points={trendPoints}
                     fill="none"
-                    stroke="#34C759"
+                    stroke={
+                      isDark
+                        ? "#69B77D"
+                        : "#4F8F62"
+                    }
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -610,8 +1127,7 @@ function Insights() {
                         trendData.length === 1
                           ? 50
                           : (index /
-                              (trendData.length -
-                                1)) *
+                              (trendData.length - 1)) *
                             100
 
                       const y =
@@ -626,7 +1142,11 @@ function Insights() {
                           cx={x}
                           cy={y}
                           r="1.8"
-                          fill="#34C759"
+                          fill={
+                            isDark
+                              ? "#69B77D"
+                              : "#4F8F62"
+                          }
                         />
                       )
                     }
@@ -634,14 +1154,23 @@ function Insights() {
                 </svg>
 
                 <div className="mt-2 flex justify-between">
-                  {trendData.map((item, index) => (
-                    <span
-                      key={`${item.month}-${index}`}
-                      className="text-[10px] text-gray-400 sm:text-xs"
-                    >
-                      {item.month}
-                    </span>
-                  ))}
+                  {trendData.map(
+                    (item, index) => (
+                      <span
+                        key={`${item.month}-${index}`}
+                        className={`
+                          text-[10px] sm:text-xs
+                          ${
+                            isDark
+                              ? "text-[#66736B]"
+                              : "text-[#8A9490]"
+                          }
+                        `}
+                      >
+                        {item.month}
+                      </span>
+                    )
+                  )}
                 </div>
               </div>
             )}
@@ -653,4 +1182,3 @@ function Insights() {
 }
 
 export default Insights
-

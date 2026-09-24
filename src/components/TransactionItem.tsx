@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom"
 
 import type { Transaction } from "../types/transaction"
 import { useTransactions } from "../context/UseTransactions"
+import { useTheme } from "../context/UseTheme"
 import { formatCurrency } from "../utils/formatCurrency"
 
 type TransactionItemProps = {
@@ -36,11 +37,13 @@ function TransactionItem({
   transaction,
 }: TransactionItemProps) {
   const { removeTransaction } = useTransactions()
+  const { theme } = useTheme()
   const navigate = useNavigate()
 
   const [showDeleteConfirm, setShowDeleteConfirm] =
     useState(false)
 
+  const isDark = theme === "dark"
   const isIncome = transaction.type === "income"
 
   const handleDelete = () => {
@@ -51,18 +54,37 @@ function TransactionItem({
   return (
     <>
       {/* Transaction Card */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5">
+      <div
+        className={`
+          rounded-2xl border p-4 shadow-sm
+          transition-all duration-200
+          hover:shadow-md sm:p-5
+          ${
+            isDark
+              ? "border-[#2B382F] bg-[#18201B]"
+              : "border-[#E5EAE6] bg-white"
+          }
+        `}
+      >
         {/* Transaction Information */}
         <div className="flex items-center justify-between gap-4">
           {/* Left side */}
           <div className="flex min-w-0 items-center gap-3">
             {/* Transaction Icon */}
             <div
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                isIncome
-                  ? "bg-green-50 text-green-600"
-                  : "bg-red-50 text-red-500"
-              }`}
+              className={`
+                flex h-10 w-10 shrink-0
+                items-center justify-center rounded-full
+                ${
+                  isIncome
+                    ? isDark
+                      ? "bg-[#1E3325] text-[#69B77D]"
+                      : "bg-[#EAF5ED] text-[#3F8F5B]"
+                    : isDark
+                      ? "bg-[#3A2524] text-[#E47A72]"
+                      : "bg-[#FDEDEC] text-[#D86B61]"
+                }
+              `}
             >
               {isIncome ? (
                 <ArrowDownRight size={19} />
@@ -73,11 +95,31 @@ function TransactionItem({
 
             {/* Transaction Details */}
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-semibold text-gray-900 sm:text-base">
+              <h3
+                className={`
+                  truncate text-sm font-semibold
+                  sm:text-base
+                  ${
+                    isDark
+                      ? "text-[#F1F5F2]"
+                      : "text-[#1F2933]"
+                  }
+                `}
+              >
                 {transaction.title}
               </h3>
 
-              <div className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-gray-500 sm:text-sm">
+              <div
+                className={`
+                  mt-1 flex min-w-0 items-center
+                  gap-1.5 text-xs sm:text-sm
+                  ${
+                    isDark
+                      ? "text-[#7F8C83]"
+                      : "text-[#718096]"
+                  }
+                `}
+              >
                 <span className="truncate">
                   {transaction.category}
                 </span>
@@ -93,11 +135,19 @@ function TransactionItem({
 
           {/* Amount */}
           <span
-            className={`shrink-0 text-sm font-semibold sm:text-base ${
-              isIncome
-                ? "text-green-600"
-                : "text-red-500"
-            }`}
+            className={`
+              shrink-0 text-sm font-semibold
+              sm:text-base
+              ${
+                isIncome
+                  ? isDark
+                    ? "text-[#69B77D]"
+                    : "text-[#3F8F5B]"
+                  : isDark
+                    ? "text-[#E47A72]"
+                    : "text-[#D86B61]"
+              }
+            `}
           >
             {isIncome ? "+" : "-"}
             {formatCurrency(transaction.amount)}
@@ -105,7 +155,18 @@ function TransactionItem({
         </div>
 
         {/* Actions */}
-        <div className="mt-4 flex justify-end border-t border-gray-100 pt-4 sm:mt-0 sm:border-0 sm:pt-0">
+        <div
+          className={`
+            mt-4 flex justify-end
+            border-t pt-4
+            sm:mt-0 sm:border-0 sm:pt-0
+            ${
+              isDark
+                ? "border-[#2B382F]"
+                : "border-[#E5EAE6]"
+            }
+          `}
+        >
           <div className="flex items-center gap-2">
             {/* Edit */}
             <button
@@ -116,7 +177,18 @@ function TransactionItem({
                 )
               }
               aria-label={`Edit ${transaction.title}`}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-green-100 text-green-600 transition hover:bg-green-50 sm:h-auto sm:w-auto sm:gap-1.5 sm:border-0 sm:px-3 sm:py-2"
+              className={`
+                inline-flex h-10 w-10
+                items-center justify-center
+                rounded-xl transition
+                sm:h-auto sm:w-auto sm:gap-1.5
+                sm:border-0 sm:px-3 sm:py-2
+                ${
+                  isDark
+                    ? "border border-[#31533A] text-[#69B77D] hover:bg-[#1E3325]"
+                    : "border border-[#DCEBDD] text-[#3F8F5B] hover:bg-[#EAF5ED]"
+                }
+              `}
             >
               <Pencil size={17} />
 
@@ -132,7 +204,18 @@ function TransactionItem({
                 setShowDeleteConfirm(true)
               }
               aria-label={`Delete ${transaction.title}`}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-red-200 text-red-500 transition hover:bg-red-50 sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-2"
+              className={`
+                inline-flex h-10 w-10
+                items-center justify-center
+                rounded-xl transition
+                sm:h-auto sm:w-auto sm:gap-1.5
+                sm:px-3 sm:py-2
+                ${
+                  isDark
+                    ? "border border-[#4A302E] text-[#E47A72] hover:bg-[#3A2524]"
+                    : "border border-[#F3D2CF] text-[#D86B61] hover:bg-[#FDEDEC]"
+                }
+              `}
             >
               <Trash2 size={17} />
 
@@ -147,14 +230,51 @@ function TransactionItem({
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div
+            className={`
+              w-full max-w-md rounded-2xl
+              border p-6 shadow-xl
+              ${
+                isDark
+                  ? "border-[#2B382F] bg-[#18201B]"
+                  : "border-[#E5EAE6] bg-white"
+              }
+            `}
+          >
+            <h3
+              className={`
+                text-lg font-semibold
+                ${
+                  isDark
+                    ? "text-[#F1F5F2]"
+                    : "text-[#1F2933]"
+                }
+              `}
+            >
               Delete transaction?
             </h3>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p
+              className={`
+                mt-2 text-sm
+                ${
+                  isDark
+                    ? "text-[#A7B3AA]"
+                    : "text-[#718096]"
+                }
+              `}
+            >
               Are you sure you want to delete{" "}
-              <span className="font-medium text-gray-700">
+              <span
+                className={`
+                  font-medium
+                  ${
+                    isDark
+                      ? "text-[#F1F5F2]"
+                      : "text-[#1F2933]"
+                  }
+                `}
+              >
                 "{transaction.title}"
               </span>
               ? This action cannot be undone.
@@ -166,7 +286,15 @@ function TransactionItem({
                 onClick={() =>
                   setShowDeleteConfirm(false)
                 }
-                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                className={`
+                  rounded-xl border px-4 py-2
+                  text-sm font-medium transition
+                  ${
+                    isDark
+                      ? "border-[#2B382F] text-[#A7B3AA] hover:bg-[#202B23] hover:text-[#F1F5F2]"
+                      : "border-[#E5EAE6] text-[#718096] hover:bg-[#F1F6F2] hover:text-[#1F2933]"
+                  }
+                `}
               >
                 Cancel
               </button>
@@ -174,7 +302,16 @@ function TransactionItem({
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                className={`
+                  rounded-xl px-4 py-2
+                  text-sm font-medium text-white
+                  transition
+                  ${
+                    isDark
+                      ? "bg-[#C95D55] hover:bg-[#B9524B]"
+                      : "bg-[#D86B61] hover:bg-[#C95D55]"
+                  }
+                `}
               >
                 Delete
               </button>
