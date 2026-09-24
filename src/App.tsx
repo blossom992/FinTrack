@@ -49,30 +49,52 @@ function AppContent() {
           {/* Main Content */}
           <main className="min-w-0 flex-1">
             {/* Mobile Menu Button */}
-            {!sidebarOpen && (
-             <div className={`flex items-center border-b ${
-    theme === "dark"
-      ? "border-b border-[#29372f] bg-[#121a16]"
-      : "border-[#E5EAE6] bg-white"
-  } px-4 py-3 lg:hidden`}>
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(true)}
-                  aria-label="Open navigation menu"
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl transition hover:${
-    theme === "dark"
-      ? "bg-gray-800 text-[#718096]"
-      : "bg-[#F7F9F6] text-[#718096]"
-  }`}
-                >
-                  <span className="text-xl">☰</span>
-                </button>
+           {!sidebarOpen && (
+  <div
+    className={`
+      sticky top-0 z-30
+      flex items-center
+      border-b px-4 py-3
+      lg:hidden
+      ${
+        theme === "dark"
+          ? "border-[#2B382F] bg-[#151C17]"
+          : "border-[#E5EAE6] bg-white"
+      }
+    `}
+  >
+    <button
+      type="button"
+      onClick={() => setSidebarOpen(true)}
+      aria-label="Open navigation menu"
+      className={`
+        flex h-10 w-10 items-center
+        justify-center rounded-xl
+        transition
+        ${
+          theme === "dark"
+            ? "text-[#A7B3AA] hover:bg-[#202B23] hover:text-[#F1F5F2]"
+            : "text-[#718096] hover:bg-[#F1F6F2] hover:text-[#1F2933]"
+        }
+      `}
+    >
+      <span className="text-xl">☰</span>
+    </button>
 
-                <span className="ml-3 text-lg font-bold text-gray-900 dark:text-gray-100">
-                  FinTrack
-                </span>
-              </div>
-            )}
+    <span
+      className={`
+        ml-3 text-lg font-bold
+        ${
+          theme === "dark"
+            ? "text-[#F1F5F2]"
+            : "text-[#1F2933]"
+        }
+      `}
+    >
+      FinTrack
+    </span>
+  </div>
+)}
 
             <Routes>
               {/* Dashboard */}
